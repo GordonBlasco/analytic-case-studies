@@ -25,6 +25,8 @@ $$\\begin{equation}
   (X \\ci Y) | Z \\iff Pr(A \\cap B |C) = Pr(A|C)Pr(B|C)
 \\end{equation}$$
 
+<img src="https://latex.codecogs.com/png.image?\dpi{110}&space;\alpha_j&space;\sim&space;Normal(\bar{\alpha},&space;\sigma)\\\bar{\alpha}&space;\sim&space;Normal(0,1)&space;\\\sigma&space;\sim&space;Exponential(1)" title="\alpha_j \sim Normal(\bar{\alpha}, \sigma)\\\bar{\alpha} \sim Normal(0,1) \\\sigma \sim Exponential(1)" />
+
 **Be sure to transform the αj values to the probability scale for
 plotting and summary. How does increasing the width of the prior on σ
 change the prior distribution of αj? You might try Exponential(10) and
@@ -71,7 +73,7 @@ Justify your model with a DAG of this experiment.**
 
     plot(tadpole_dag)
 
-    ## Plot coordinates for graph not supplied! Generating coordinates, see ?coordinates for how to set your own.
+    Plot coordinates for graph not supplied! Generating coordinates, see ?coordinates for how to set your own.
 
 ![](multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-3-1.png)
 
@@ -87,168 +89,75 @@ Justify your model with a DAG of this experiment.**
         G = ifelse( d$size=="small" , 1L , 2L )
     )
 
-now in stan:
+here is what the code looks like in stan:
 
     print_file <- function(file) {
       cat(paste(readLines(file), "\n", sep=""), sep="")
     }
     print_file("question_two_model.stan")
 
-    ## data{
-    ##     int D[48];
-    ##     int S[48];
-    ##     int G[48];
-    ##     int P[48];
-    ##     int T[48];
-    ## }
-    ## parameters{
-    ##     vector[48] a;
-    ##     matrix[2,2] b;
-    ##     real<lower=0> sigma;
-    ## }
-    ## model{
-    ##     vector[48] p;
-    ##     sigma ~ exponential( 1 );
-    ##     to_vector( b ) ~ normal( 0 , 1 );
-    ##     a ~ normal( 0 , sigma );
-    ##     for ( i in 1:48 ) {
-    ##         p[i] = a[T[i]] + b[P[i], G[i]];
-    ##         p[i] = inv_logit(p[i]);
-    ##     }
-    ##     S ~ binomial( D , p );
-    ## }
-    ## generated quantities{
-    ##     vector[48] log_lik;
-    ##     vector[48] p;
-    ##     for ( i in 1:48 ) {
-    ##         p[i] = a[T[i]] + b[P[i], G[i]];
-    ##         p[i] = inv_logit(p[i]);
-    ##     }
-    ##     for ( i in 1:48 ) log_lik[i] = binomial_lpmf( S[i] | D[i] , p[i] );
-    ## }
+    data{
+        int D[48];
+        int S[48];
+        int G[48];
+        int P[48];
+        int T[48];
+    }
+    parameters{
+        vector[48] a;
+        matrix[2,2] b;
+        real<lower=0> sigma;
+    }
+    model{
+        vector[48] p;
+        sigma ~ exponential( 1 );
+        to_vector( b ) ~ normal( 0 , 1 );
+        a ~ normal( 0 , sigma );
+        for ( i in 1:48 ) {
+            p[i] = a[T[i]] + b[P[i], G[i]];
+            p[i] = inv_logit(p[i]);
+        }
+        S ~ binomial( D , p );
+    }
+    generated quantities{
+        vector[48] log_lik;
+        vector[48] p;
+        for ( i in 1:48 ) {
+            p[i] = a[T[i]] + b[P[i], G[i]];
+            p[i] = inv_logit(p[i]);
+        }
+        for ( i in 1:48 ) log_lik[i] = binomial_lpmf( S[i] | D[i] , p[i] );
+    }
+
+Now here is how you pass the data to the stan script
 
     m2 <- stan("question_two_model.stan", data=dat)
 
-    ## 
-    ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 1).
-    ## Chain 1: 
-    ## Chain 1: Gradient evaluation took 0 seconds
-    ## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
-    ## Chain 1: Adjust your expectations accordingly!
-    ## Chain 1: 
-    ## Chain 1: 
-    ## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
-    ## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
-    ## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
-    ## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
-    ## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
-    ## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-    ## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-    ## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-    ## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-    ## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-    ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-    ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
-    ## Chain 1: 
-    ## Chain 1:  Elapsed Time: 0.241 seconds (Warm-up)
-    ## Chain 1:                0.24 seconds (Sampling)
-    ## Chain 1:                0.481 seconds (Total)
-    ## Chain 1: 
-    ## 
-    ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 2).
-    ## Chain 2: 
-    ## Chain 2: Gradient evaluation took 0 seconds
-    ## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
-    ## Chain 2: Adjust your expectations accordingly!
-    ## Chain 2: 
-    ## Chain 2: 
-    ## Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)
-    ## Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)
-    ## Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)
-    ## Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)
-    ## Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)
-    ## Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-    ## Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-    ## Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-    ## Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-    ## Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-    ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-    ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
-    ## Chain 2: 
-    ## Chain 2:  Elapsed Time: 0.249 seconds (Warm-up)
-    ## Chain 2:                0.229 seconds (Sampling)
-    ## Chain 2:                0.478 seconds (Total)
-    ## Chain 2: 
-    ## 
-    ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 3).
-    ## Chain 3: 
-    ## Chain 3: Gradient evaluation took 0 seconds
-    ## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
-    ## Chain 3: Adjust your expectations accordingly!
-    ## Chain 3: 
-    ## Chain 3: 
-    ## Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)
-    ## Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)
-    ## Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)
-    ## Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)
-    ## Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)
-    ## Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-    ## Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-    ## Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-    ## Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-    ## Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-    ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-    ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
-    ## Chain 3: 
-    ## Chain 3:  Elapsed Time: 0.236 seconds (Warm-up)
-    ## Chain 3:                0.238 seconds (Sampling)
-    ## Chain 3:                0.474 seconds (Total)
-    ## Chain 3: 
-    ## 
-    ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 4).
-    ## Chain 4: 
-    ## Chain 4: Gradient evaluation took 0 seconds
-    ## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
-    ## Chain 4: Adjust your expectations accordingly!
-    ## Chain 4: 
-    ## Chain 4: 
-    ## Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)
-    ## Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)
-    ## Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)
-    ## Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)
-    ## Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)
-    ## Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-    ## Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-    ## Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-    ## Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-    ## Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-    ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-    ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
-    ## Chain 4: 
-    ## Chain 4:  Elapsed Time: 0.232 seconds (Warm-up)
-    ## Chain 4:                0.231 seconds (Sampling)
-    ## Chain 4:                0.463 seconds (Total)
-    ## Chain 4:
+And let’s take a look at the output
 
     print(m2, probs=c(0.25, 0.5, 0.75), pars=c("b", "sigma") , include=TRUE)
 
-    ## Inference for Stan model: question_two_model.
-    ## 4 chains, each with iter=2000; warmup=1000; thin=1; 
-    ## post-warmup draws per chain=1000, total post-warmup draws=4000.
-    ## 
-    ##         mean se_mean   sd   25%   50%   75% n_eff Rhat
-    ## b[1,1]  2.36    0.00 0.31  2.16  2.36  2.56  3755    1
-    ## b[1,2]  2.50    0.00 0.31  2.29  2.50  2.70  3837    1
-    ## b[2,1]  0.45    0.01 0.25  0.28  0.45  0.61  2502    1
-    ## b[2,2] -0.43    0.00 0.25 -0.60 -0.43 -0.27  2546    1
-    ## sigma   0.74    0.00 0.14  0.64  0.73  0.83  1331    1
-    ## 
-    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:15:20 2022.
-    ## For each parameter, n_eff is a crude measure of effective sample size,
-    ## and Rhat is the potential scale reduction factor on split chains (at 
-    ## convergence, Rhat=1).
+    Inference for Stan model: question_two_model.
+    4 chains, each with iter=2000; warmup=1000; thin=1; 
+    post-warmup draws per chain=1000, total post-warmup draws=4000.
+
+            mean se_mean   sd   25%   50%   75% n_eff Rhat
+    b[1,1]  2.37    0.00 0.31  2.17  2.37  2.56  4073    1
+    b[1,2]  2.50    0.00 0.30  2.30  2.50  2.71  4509    1
+    b[2,1]  0.45    0.01 0.25  0.27  0.45  0.61  2499    1
+    b[2,2] -0.43    0.00 0.25 -0.60 -0.43 -0.27  2917    1
+    sigma   0.73    0.00 0.14  0.63  0.72  0.82  1238    1
+
+    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:27:17 2022.
+    For each parameter, n_eff is a crude measure of effective sample size,
+    and Rhat is the potential scale reduction factor on split chains (at 
+    convergence, Rhat=1).
 
     plot(m2, pars=c("b", "sigma"))
+
+    ci_level: 0.8 (80% intervals)
+
+    outer_level: 0.95 (95% intervals)
 
 ![](multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
@@ -260,6 +169,8 @@ convert it to an ordered category (with three levels). Compare the σ
 (tank standard deviation) posterior distribution to σ from your model in
 Problem 2. How are they different? Why?**
 
+Now we want to do density as a standardized log version of itself.
+
     log_dens <- log(d$density)
     stand_log_dens <- (log_dens - mean(log_dens)) / sd(log_dens)
     dat$Do <- stand_log_dens
@@ -267,131 +178,32 @@ Problem 2. How are they different? Why?**
 
     m3 <- stan("question_three_model.stan", data=dat)
 
-    ## 
-    ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 1).
-    ## Chain 1: 
-    ## Chain 1: Gradient evaluation took 0 seconds
-    ## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
-    ## Chain 1: Adjust your expectations accordingly!
-    ## Chain 1: 
-    ## Chain 1: 
-    ## Chain 1: Iteration:    1 / 2000 [  0%]  (Warmup)
-    ## Chain 1: Iteration:  200 / 2000 [ 10%]  (Warmup)
-    ## Chain 1: Iteration:  400 / 2000 [ 20%]  (Warmup)
-    ## Chain 1: Iteration:  600 / 2000 [ 30%]  (Warmup)
-    ## Chain 1: Iteration:  800 / 2000 [ 40%]  (Warmup)
-    ## Chain 1: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-    ## Chain 1: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-    ## Chain 1: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-    ## Chain 1: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-    ## Chain 1: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-    ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-    ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
-    ## Chain 1: 
-    ## Chain 1:  Elapsed Time: 0.296 seconds (Warm-up)
-    ## Chain 1:                0.29 seconds (Sampling)
-    ## Chain 1:                0.586 seconds (Total)
-    ## Chain 1: 
-    ## 
-    ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 2).
-    ## Chain 2: 
-    ## Chain 2: Gradient evaluation took 0 seconds
-    ## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
-    ## Chain 2: Adjust your expectations accordingly!
-    ## Chain 2: 
-    ## Chain 2: 
-    ## Chain 2: Iteration:    1 / 2000 [  0%]  (Warmup)
-    ## Chain 2: Iteration:  200 / 2000 [ 10%]  (Warmup)
-    ## Chain 2: Iteration:  400 / 2000 [ 20%]  (Warmup)
-    ## Chain 2: Iteration:  600 / 2000 [ 30%]  (Warmup)
-    ## Chain 2: Iteration:  800 / 2000 [ 40%]  (Warmup)
-    ## Chain 2: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-    ## Chain 2: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-    ## Chain 2: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-    ## Chain 2: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-    ## Chain 2: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-    ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-    ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
-    ## Chain 2: 
-    ## Chain 2:  Elapsed Time: 0.296 seconds (Warm-up)
-    ## Chain 2:                0.286 seconds (Sampling)
-    ## Chain 2:                0.582 seconds (Total)
-    ## Chain 2: 
-    ## 
-    ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 3).
-    ## Chain 3: 
-    ## Chain 3: Gradient evaluation took 0 seconds
-    ## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
-    ## Chain 3: Adjust your expectations accordingly!
-    ## Chain 3: 
-    ## Chain 3: 
-    ## Chain 3: Iteration:    1 / 2000 [  0%]  (Warmup)
-    ## Chain 3: Iteration:  200 / 2000 [ 10%]  (Warmup)
-    ## Chain 3: Iteration:  400 / 2000 [ 20%]  (Warmup)
-    ## Chain 3: Iteration:  600 / 2000 [ 30%]  (Warmup)
-    ## Chain 3: Iteration:  800 / 2000 [ 40%]  (Warmup)
-    ## Chain 3: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-    ## Chain 3: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-    ## Chain 3: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-    ## Chain 3: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-    ## Chain 3: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-    ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-    ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
-    ## Chain 3: 
-    ## Chain 3:  Elapsed Time: 0.289 seconds (Warm-up)
-    ## Chain 3:                0.275 seconds (Sampling)
-    ## Chain 3:                0.564 seconds (Total)
-    ## Chain 3: 
-    ## 
-    ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 4).
-    ## Chain 4: 
-    ## Chain 4: Gradient evaluation took 0 seconds
-    ## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0 seconds.
-    ## Chain 4: Adjust your expectations accordingly!
-    ## Chain 4: 
-    ## Chain 4: 
-    ## Chain 4: Iteration:    1 / 2000 [  0%]  (Warmup)
-    ## Chain 4: Iteration:  200 / 2000 [ 10%]  (Warmup)
-    ## Chain 4: Iteration:  400 / 2000 [ 20%]  (Warmup)
-    ## Chain 4: Iteration:  600 / 2000 [ 30%]  (Warmup)
-    ## Chain 4: Iteration:  800 / 2000 [ 40%]  (Warmup)
-    ## Chain 4: Iteration: 1000 / 2000 [ 50%]  (Warmup)
-    ## Chain 4: Iteration: 1001 / 2000 [ 50%]  (Sampling)
-    ## Chain 4: Iteration: 1200 / 2000 [ 60%]  (Sampling)
-    ## Chain 4: Iteration: 1400 / 2000 [ 70%]  (Sampling)
-    ## Chain 4: Iteration: 1600 / 2000 [ 80%]  (Sampling)
-    ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
-    ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
-    ## Chain 4: 
-    ## Chain 4:  Elapsed Time: 0.295 seconds (Warm-up)
-    ## Chain 4:                0.29 seconds (Sampling)
-    ## Chain 4:                0.585 seconds (Total)
-    ## Chain 4:
+Now compare the estimates:
 
     print(m3, probs=c(0.25, 0.5, 0.75), pars=c("b", "bD", "sigma") , include=TRUE)
 
-    ## Inference for Stan model: question_three_model.
-    ## 4 chains, each with iter=2000; warmup=1000; thin=1; 
-    ## post-warmup draws per chain=1000, total post-warmup draws=4000.
-    ## 
-    ##         mean se_mean   sd   25%   50%   75% n_eff Rhat
-    ## b[1,1]  2.35       0 0.28  2.16  2.34  2.53  4517    1
-    ## b[1,2]  2.48       0 0.30  2.27  2.48  2.67  4284    1
-    ## b[2,1]  0.54       0 0.23  0.38  0.54  0.69  2929    1
-    ## b[2,2] -0.36       0 0.23 -0.51 -0.36 -0.21  3183    1
-    ## bD[1]   0.14       0 0.22  0.00  0.15  0.28  4891    1
-    ## bD[2]  -0.47       0 0.17 -0.58 -0.47 -0.35  3418    1
-    ## sigma   0.64       0 0.14  0.54  0.63  0.72   870    1
-    ## 
-    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:15:43 2022.
-    ## For each parameter, n_eff is a crude measure of effective sample size,
-    ## and Rhat is the potential scale reduction factor on split chains (at 
-    ## convergence, Rhat=1).
+    Inference for Stan model: question_three_model.
+    4 chains, each with iter=2000; warmup=1000; thin=1; 
+    post-warmup draws per chain=1000, total post-warmup draws=4000.
+
+            mean se_mean   sd   25%   50%   75% n_eff Rhat
+    b[1,1]  2.34       0 0.29  2.14  2.34  2.54  4530 1.00
+    b[1,2]  2.48       0 0.30  2.28  2.48  2.67  4231 1.00
+    b[2,1]  0.54       0 0.24  0.38  0.54  0.69  2563 1.00
+    b[2,2] -0.36       0 0.23 -0.51 -0.36 -0.21  3078 1.00
+    bD[1]   0.15       0 0.21  0.00  0.15  0.30  4429 1.00
+    bD[2]  -0.47       0 0.17 -0.58 -0.47 -0.35  3862 1.00
+    sigma   0.64       0 0.14  0.55  0.63  0.73   771 1.01
+
+    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:27:40 2022.
+    For each parameter, n_eff is a crude measure of effective sample size,
+    and Rhat is the potential scale reduction factor on split chains (at 
+    convergence, Rhat=1).
 
     plot(m3, pars=c("b", "bD", "sigma"))
 
-    ## ci_level: 0.8 (80% intervals)
+    ci_level: 0.8 (80% intervals)
 
-    ## outer_level: 0.95 (95% intervals)
+    outer_level: 0.95 (95% intervals)
 
-![](multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-8-1.png)
+![](multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-9-1.png)

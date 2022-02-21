@@ -6,7 +6,7 @@ output: md_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, comment = NA)
 ```
 
 ```{r results='hide', message=FALSE, warning=FALSE}
@@ -33,6 +33,9 @@ another test
 $$\begin{equation}
   (X \ci Y) | Z \iff Pr(A \cap B |C) = Pr(A|C)Pr(B|C)
 \end{equation}$$
+
+
+<img src="https://latex.codecogs.com/png.image?\dpi{110}&space;\alpha_j&space;\sim&space;Normal(\bar{\alpha},&space;\sigma)\\\bar{\alpha}&space;\sim&space;Normal(0,1)&space;\\\sigma&space;\sim&space;Exponential(1)" title="\alpha_j \sim Normal(\bar{\alpha}, \sigma)\\\bar{\alpha} \sim Normal(0,1) \\\sigma \sim Exponential(1)" />
 
 
 **Be sure to transform the αj values to the probability scale for plotting and summary. How does increasing the width of the prior on σ change the prior distribution of αj? You might try Exponential(10) and Exponential(0.1) for example.**
@@ -69,7 +72,7 @@ The main point of this exercise is to see that flat priors on one scale are not 
 
 **2.  Revisit the Reedfrog survival data, data(reedfrogs). Start with the varying effects model from the book and lecture. Then modify it to estimate the causal effects of the treatment variables pred and size, including how size might modify the effect of predation. An easy approach is to estimate an effect for each combination of pred and size. Justify your model with a DAG of this experiment.**
 
-```{r, warning=FALSE}
+```{r warning=FALSE}
 
 tadpole_dag <- dagitty( "dag {
                     P -> S <- G
@@ -95,7 +98,7 @@ dat <- list(
 )
 ```
 
-now in stan:
+here is what the code looks like in stan:
 ```{r}
 print_file <- function(file) {
   cat(paste(readLines(file), "\n", sep=""), sep="")
@@ -103,26 +106,32 @@ print_file <- function(file) {
 print_file("question_two_model.stan")
 ```
 
-```{r, message=FALSE, warning=FALSE}
+Now here is how you pass the data to the stan script
+```{r results='hide', message=FALSE, warning=FALSE}
 m2 <- stan("question_two_model.stan", data=dat)
 ```
 
-
-```{r, message = FALSE}
+And let's take a look at the output
+```{r}
 print(m2, probs=c(0.25, 0.5, 0.75), pars=c("b", "sigma") , include=TRUE)
 plot(m2, pars=c("b", "sigma"))
 
 ```
 
 **3. Now estimate the causal effect of density on survival. Consider whether pred modifies the effect of density. There are several good ways to include density in your Binomial GLM. You could treat it as a continuous regression variable (possibly standardized). Or you could convert it to an ordered category (with three levels). Compare the σ (tank standard deviation) posterior distribution to σ from your model in Problem 2. How are they different? Why?**
-```{r}
 
+Now we want to do density as a standardized log version of itself.
+```{r results='hide', message=FALSE, warning=FALSE}
 log_dens <- log(d$density)
 stand_log_dens <- (log_dens - mean(log_dens)) / sd(log_dens)
 dat$Do <- stand_log_dens
 
 
 m3 <- stan("question_three_model.stan", data=dat)
+```
+
+Now compare the estimates:
+```{r}
 print(m3, probs=c(0.25, 0.5, 0.75), pars=c("b", "bD", "sigma") , include=TRUE)
 
 plot(m3, pars=c("b", "bD", "sigma"))
