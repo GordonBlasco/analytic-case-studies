@@ -122,13 +122,13 @@ stand_log_dens <- (log_dens - mean(log_dens)) / sd(log_dens)
 dat$Do <- stand_log_dens
 ```
 
-
+Again here is the code expressed in stan.
 ```{r results='hide', message=FALSE, warning=FALSE}
 m3 <- stan("question_three_model.stan", data=dat)
 ```
 
 Now compare the estimates:
-```{r}
+```{r warning=FALSE}
 print(m3, probs=c(0.25, 0.5, 0.75), pars=c("b", "bD", "sigma") , include=TRUE)
 
 plot(m3, pars=c("b", "bD", "sigma"))

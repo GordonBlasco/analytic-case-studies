@@ -132,13 +132,13 @@ And let’s take a look at the output
     post-warmup draws per chain=1000, total post-warmup draws=4000.
 
             mean se_mean   sd   25%   50%   75% n_eff Rhat
-    b[1,1]  2.37    0.00 0.31  2.16  2.36  2.57  3799 1.00
-    b[1,2]  2.51    0.00 0.32  2.29  2.50  2.71  4015 1.00
-    b[2,1]  0.45    0.01 0.25  0.28  0.44  0.61  2261 1.00
-    b[2,2] -0.43    0.01 0.25 -0.60 -0.43 -0.26  2451 1.00
-    sigma   0.73    0.00 0.14  0.63  0.72  0.82  1203 1.01
+    b[1,1]  2.37    0.01 0.29  2.17  2.36  2.56  3328    1
+    b[1,2]  2.51    0.01 0.31  2.30  2.51  2.71  3872    1
+    b[2,1]  0.44    0.00 0.24  0.28  0.44  0.60  2719    1
+    b[2,2] -0.42    0.01 0.25 -0.58 -0.42 -0.26  2249    1
+    sigma   0.73    0.00 0.14  0.63  0.72  0.82  1337    1
 
-    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:38:03 2022.
+    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:40:59 2022.
     For each parameter, n_eff is a crude measure of effective sample size,
     and Rhat is the potential scale reduction factor on split chains (at 
     convergence, Rhat=1).
@@ -165,6 +165,8 @@ Now we want to do density as a standardized log version of itself.
     stand_log_dens <- (log_dens - mean(log_dens)) / sd(log_dens)
     dat$Do <- stand_log_dens
 
+Again here is the code expressed in stan.
+
     m3 <- stan("question_three_model.stan", data=dat)
 
 Now compare the estimates:
@@ -176,15 +178,15 @@ Now compare the estimates:
     post-warmup draws per chain=1000, total post-warmup draws=4000.
 
             mean se_mean   sd   25%   50%   75% n_eff Rhat
-    b[1,1]  2.35       0 0.29  2.15  2.34  2.55  4042    1
-    b[1,2]  2.48       0 0.29  2.30  2.47  2.68  4213    1
-    b[2,1]  0.53       0 0.23  0.37  0.53  0.68  3037    1
-    b[2,2] -0.36       0 0.24 -0.51 -0.35 -0.20  3021    1
-    bD[1]   0.15       0 0.21  0.01  0.15  0.29  4537    1
-    bD[2]  -0.47       0 0.17 -0.58 -0.47 -0.35  3471    1
-    sigma   0.64       0 0.14  0.55  0.63  0.72   751    1
+    b[1,1]  2.35       0 0.29  2.16  2.35  2.55  4154    1
+    b[1,2]  2.48       0 0.30  2.28  2.48  2.68  4521    1
+    b[2,1]  0.53       0 0.24  0.38  0.53  0.69  3033    1
+    b[2,2] -0.36       0 0.23 -0.52 -0.37 -0.21  2534    1
+    bD[1]   0.14       0 0.22  0.00  0.14  0.29  4536    1
+    bD[2]  -0.47       0 0.18 -0.58 -0.47 -0.35  3551    1
+    sigma   0.65       0 0.14  0.55  0.64  0.74   860    1
 
-    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:38:26 2022.
+    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:41:22 2022.
     For each parameter, n_eff is a crude measure of effective sample size,
     and Rhat is the potential scale reduction factor on split chains (at 
     convergence, Rhat=1).
