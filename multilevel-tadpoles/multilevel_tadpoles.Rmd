@@ -2,7 +2,7 @@
 title: "Multilevel tadpoles"
 author: "Gordon Blasco"
 date: "2/20/2022"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
