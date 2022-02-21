@@ -132,13 +132,13 @@ And let’s take a look at the output
     post-warmup draws per chain=1000, total post-warmup draws=4000.
 
             mean se_mean   sd   25%   50%   75% n_eff Rhat
-    b[1,1]  2.37    0.01 0.29  2.17  2.36  2.56  3328    1
-    b[1,2]  2.51    0.01 0.31  2.30  2.51  2.71  3872    1
-    b[2,1]  0.44    0.00 0.24  0.28  0.44  0.60  2719    1
-    b[2,2] -0.42    0.01 0.25 -0.58 -0.42 -0.26  2249    1
-    sigma   0.73    0.00 0.14  0.63  0.72  0.82  1337    1
+    b[1,1]  2.37    0.00 0.30  2.17  2.37  2.58  3889    1
+    b[1,2]  2.50    0.01 0.31  2.29  2.50  2.70  3659    1
+    b[2,1]  0.44    0.00 0.25  0.28  0.44  0.61  2548    1
+    b[2,2] -0.42    0.01 0.26 -0.59 -0.42 -0.25  2406    1
+    sigma   0.74    0.00 0.14  0.64  0.72  0.82  1284    1
 
-    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:40:59 2022.
+    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:45:37 2022.
     For each parameter, n_eff is a crude measure of effective sample size,
     and Rhat is the potential scale reduction factor on split chains (at 
     convergence, Rhat=1).
@@ -167,6 +167,44 @@ Now we want to do density as a standardized log version of itself.
 
 Again here is the code expressed in stan.
 
+    data{
+        int D[48];
+        int S[48];
+        vector[48] Do;
+        int G[48];
+        int P[48];
+        int T[48];
+    }
+    parameters{
+        vector[48] a;
+        matrix[2,2] b;
+        vector[2] bD;
+        real<lower=0> sigma;
+    }
+    model{
+        vector[48] p;
+        sigma ~ exponential( 1 );
+        bD ~ normal(0,0.5);
+        to_vector( b ) ~ normal( 0 , 1 );
+        a ~ normal( 0 , sigma );
+        for ( i in 1:48 ) {
+            p[i] = a[T[i]] + b[P[i], G[i]] + bD[P[i]] * Do[i];
+            p[i] = inv_logit(p[i]);
+        }
+        S ~ binomial( D , p );
+    }
+    generated quantities{
+        vector[48] log_lik;
+        vector[48] p;
+        for ( i in 1:48 ) {
+            p[i] = a[T[i]] + b[P[i], G[i]] + bD[P[i]] * Do[i];
+            p[i] = inv_logit(p[i]);
+        }
+        for ( i in 1:48 ) log_lik[i] = binomial_lpmf( S[i] | D[i] , p[i] );
+    }
+
+now to run the models
+
     m3 <- stan("question_three_model.stan", data=dat)
 
 Now compare the estimates:
@@ -178,15 +216,15 @@ Now compare the estimates:
     post-warmup draws per chain=1000, total post-warmup draws=4000.
 
             mean se_mean   sd   25%   50%   75% n_eff Rhat
-    b[1,1]  2.35       0 0.29  2.16  2.35  2.55  4154    1
-    b[1,2]  2.48       0 0.30  2.28  2.48  2.68  4521    1
-    b[2,1]  0.53       0 0.24  0.38  0.53  0.69  3033    1
-    b[2,2] -0.36       0 0.23 -0.52 -0.37 -0.21  2534    1
-    bD[1]   0.14       0 0.22  0.00  0.14  0.29  4536    1
-    bD[2]  -0.47       0 0.18 -0.58 -0.47 -0.35  3551    1
-    sigma   0.65       0 0.14  0.55  0.64  0.74   860    1
+    b[1,1]  2.34       0 0.29  2.15  2.34  2.54  4777 1.00
+    b[1,2]  2.48       0 0.30  2.27  2.48  2.67  4414 1.00
+    b[2,1]  0.54       0 0.23  0.38  0.53  0.69  3206 1.00
+    b[2,2] -0.35       0 0.23 -0.51 -0.36 -0.20  2944 1.00
+    bD[1]   0.15       0 0.22  0.01  0.15  0.29  4727 1.00
+    bD[2]  -0.47       0 0.17 -0.59 -0.47 -0.36  3664 1.00
+    sigma   0.64       0 0.14  0.55  0.63  0.73  1023 1.01
 
-    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:41:22 2022.
+    Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:46:00 2022.
     For each parameter, n_eff is a crude measure of effective sample size,
     and Rhat is the potential scale reduction factor on split chains (at 
     convergence, Rhat=1).
@@ -197,4 +235,4 @@ Now compare the estimates:
 
     outer_level: 0.95 (95% intervals)
 
-<img src="multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-10-1.png" style="display:block; margin:auto;" />
+<img src="multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-11-1.png" style="display:block; margin:auto;" />

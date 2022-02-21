@@ -123,12 +123,11 @@ dat$Do <- stand_log_dens
 ```
 
 Again here is the code expressed in stan.
-here is what the code looks like in stan:
 ```{r echo=FALSE}
 print_file("question_three_model.stan")
 ```
 
-now to run the model
+now to run the models
 ```{r results='hide', message=FALSE, warning=FALSE}
 m3 <- stan("question_three_model.stan", data=dat)
 ```
