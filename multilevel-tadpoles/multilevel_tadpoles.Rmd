@@ -6,7 +6,7 @@ output: md_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, comment = NA)
+knitr::opts_chunk$set(echo = TRUE, comment = NA, fig.align="center")
 ```
 
 ```{r results='hide', message=FALSE, warning=FALSE}
@@ -29,13 +29,8 @@ $$
 \sigma \sim Exponential(1)
 $$
 
-another test
-$$\begin{equation}
-  (X \ci Y) | Z \iff Pr(A \cap B |C) = Pr(A|C)Pr(B|C)
-\end{equation}$$
 
-
-<img src="https://latex.codecogs.com/png.image?\dpi{110}&space;\alpha_j&space;\sim&space;Normal(\bar{\alpha},&space;\sigma)\\\bar{\alpha}&space;\sim&space;Normal(0,1)&space;\\\sigma&space;\sim&space;Exponential(1)" title="\alpha_j \sim Normal(\bar{\alpha}, \sigma)\\\bar{\alpha} \sim Normal(0,1) \\\sigma \sim Exponential(1)" />
+<img src="https://latex.codecogs.com/png.image?\dpi{110}&space;\\\alpha_j&space;\sim&space;Normal(\bar{\alpha},&space;\sigma)\\\bar{\alpha}&space;\sim&space;Normal(0,1)&space;\\\sigma&space;\sim&space;Exponential(1)" title="\\\alpha_j \sim Normal(\bar{\alpha}, \sigma)\\\bar{\alpha} \sim Normal(0,1) \\\sigma \sim Exponential(1)" />
 
 
 **Be sure to transform the αj values to the probability scale for plotting and summary. How does increasing the width of the prior on σ change the prior distribution of αj? You might try Exponential(10) and Exponential(0.1) for example.**
@@ -99,7 +94,7 @@ dat <- list(
 ```
 
 here is what the code looks like in stan:
-```{r}
+```{r echo=FALSE}
 print_file <- function(file) {
   cat(paste(readLines(file), "\n", sep=""), sep="")
 }
@@ -125,8 +120,10 @@ Now we want to do density as a standardized log version of itself.
 log_dens <- log(d$density)
 stand_log_dens <- (log_dens - mean(log_dens)) / sd(log_dens)
 dat$Do <- stand_log_dens
+```
 
 
+```{r echo=FALSE}
 m3 <- stan("question_three_model.stan", data=dat)
 ```
 
