@@ -1,0 +1,114 @@
+---
+title: "Modeling golf success"
+author: "Gordon Blasco"
+date: "2/20/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+examples ;
+https://mc-stan.org/users/documentation/case-studies/golf.html
+https://github.com/stan-dev/example-models/blob/master/knitr/golf/golf.Rmd
+
+
+# packages
+
+```{r, messages=FALSE, warning=FALSE}
+library(tidyverse)
+library(tidybayes)
+library(rstan)
+library(bayesplot)
+library(shinystan)
+```
+
+Here is the data in all it's simple glory.
+
+```{r}
+golf_data <- tribble(
+  ~feet, ~n, ~y,
+  2,  1443, 1346,
+  3,  694,  577,
+  4,  455,  337,
+  5,  353,  208,
+  6,  272,  149,
+  7,  256,  136,
+  8,  240,  111,
+  9,  217,  69,
+  10, 200,  67,
+  11, 237,  75,
+  12, 202,  52,
+  13, 192,  46,
+  14, 174,  54,
+  15, 167,  28,
+  16, 201,  27,
+  17, 195,  31,
+  18, 191,  33,
+  19, 147,  20,
+  20, 152,  24
+)
+
+ggplot(golf_data, aes(x = feet, y = ((y/n))))+
+         geom_point() +
+  labs(x = "Distance from hole (feet)", 
+       y = "Probability of success")
+```
+
+And here is a simple model in mathstats notation.
+
+$$
+y_i \sim binomial(n_i,p_i )\\
+logit(p_i) = \alpha + \beta x_i
+$$
+
+now in stan:
+```{r}
+print_file <- function(file) {
+  cat(paste(readLines(file), "\n", sep=""), sep="")
+}
+print_file("golf_logistic.stan")
+```
+
+
+
+Lets prepare the data for stan. The data needs to be in a list and we also need to pass the lenth of the data in that list
+```{r}
+
+dat <- list(
+  x = golf_data$feet,
+  n = golf_data$n,
+  y = golf_data$y,
+  J = nrow(golf_data)
+)
+
+
+
+
+fit_logistic <- stan("golf_logistic.stan", data=dat)
+
+print(fit_logistic, probs=c(0.25, 0.5, 0.75), pars="lp__", include=FALSE)
+
+plot(fit_logistic)
+```
+
+
+
+bayesplots
+```{r}
+
+posterior <- as.matrix(fit_logistic)
+
+plot_title <- ggtitle("Posterior distributions",
+                      "with medians and 80% intervals")
+mcmc_areas(posterior,
+           pars = c("a"),
+      ) + plot_title
+
+mcmc_areas(posterior,
+           pars = c("b"),
+      ) + plot_title
+
+
+```

@@ -1,0 +1,121 @@
+---
+title: "Multilevel tadpoles"
+author: "Gordon Blasco"
+date: "2/20/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, messages=FALSE, warning=FALSE}
+library(dagitty)
+library(tidyverse)
+library(tidybayes)
+library(rstan)
+library(bayesplot)
+library(shinystan)
+```
+
+\
+This examples comes from the week 6 homework for the stats rethinking courese. I have modified it to work off stan. Rethinking is only called to get the data and then the package is removed. I want to try and bridge the gap from the Rethinking package toward real world tools.
+
+**1. Conduct a prior predictive simulation for the Reedfrog model. By this I mean to simulate the prior distribution of tank survival probabilities αj. Start by using this prior:**
+
+$$
+\alpha_j \sim Normal(\bar{\alpha}, \sigma)\\
+\bar{\alpha} \sim Normal(0,1) \\
+\sigma \sim Exponential(1)
+$$
+
+**Be sure to transform the αj values to the probability scale for plotting and summary. How does increasing the width of the prior on σ change the prior distribution of αj? You might try Exponential(10) and Exponential(0.1) for example.**
+
+```{r}
+
+n <- 1e4
+
+prior_test <- tibble(
+  sigma_0.1 = rexp(n, 0.1),
+  sigma_1.0 = rexp(n, 1.0),
+  a_bar = rnorm(n, 0, 1)
+) %>%
+  mutate(
+    # create prior distributions
+    prior_sig_0.1 = rnorm(n, a_bar, sigma_0.1),
+    prior_sig_1.0 = rnorm(n, a_bar, sigma_1.0),
+    
+    # convert both to inverse logits
+    prior_sig_0.1 = exp(prior_sig_0.1) / (1 + exp(prior_sig_0.1)),
+    prior_sig_1.0 = exp(prior_sig_1.0) / (1 + exp(prior_sig_1.0))
+  )
+
+
+ggplot(data = prior_test)+ 
+  geom_density(aes(x=prior_sig_0.1), color = "red")+
+  geom_density(aes(x=prior_sig_1.0), color = "blue")
+
+
+
+```
+
+The main point of this exercise is to see that flat priors on one scale are not flat on another.
+
+**2.  Revisit the Reedfrog survival data, data(reedfrogs). Start with the varying effects model from the book and lecture. Then modify it to estimate the causal effects of the treatment variables pred and size, including how size might modify the effect of predation. An easy approach is to estimate an effect for each combination of pred and size. Justify your model with a DAG of this experiment.**
+
+```{r, warning=FALSE}
+
+tadpole_dag <- dagitty( "dag {
+                    P -> S <- G
+                    T -> S <- D
+                    }")
+
+plot(tadpole_dag)
+```
+
+
+
+```{r}
+data(reedfrogs, package = "rethinking")
+d <- reedfrogs
+
+
+dat <- list(
+    S = d$surv,
+    D = d$density,
+    T = 1:nrow(d),
+    P = ifelse( d$pred=="no" , 1L , 2L ),
+    G = ifelse( d$size=="small" , 1L , 2L )
+)
+```
+
+now in stan:
+```{r}
+print_file <- function(file) {
+  cat(paste(readLines(file), "\n", sep=""), sep="")
+}
+print_file("question_two_model.stan")
+```
+
+
+```{r, message = FALSE}
+m2 <- stan("question_two_model.stan", data=dat)
+print(m2, probs=c(0.25, 0.5, 0.75), pars=c("b", "sigma") , include=TRUE)
+plot(m2, pars=c("b", "sigma"))
+
+```
+
+**3. Now estimate the causal effect of density on survival. Consider whether pred modifies the effect of density. There are several good ways to include density in your Binomial GLM. You could treat it as a continuous regression variable (possibly standardized). Or you could convert it to an ordered category (with three levels). Compare the σ (tank standard deviation) posterior distribution to σ from your model in Problem 2. How are they different? Why?**
+```{r}
+
+log_dens <- log(d$density)
+stand_log_dens <- (log_dens - mean(log_dens)) / sd(log_dens)
+dat$Do <- stand_log_dens
+
+
+m3 <- stan("question_three_model.stan", data=dat)
+print(m3, probs=c(0.25, 0.5, 0.75), pars=c("b", "bD", "sigma") , include=TRUE)
+
+plot(m3, pars=c("b", "bD", "sigma"))
+```
+
