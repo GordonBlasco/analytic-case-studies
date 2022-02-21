@@ -18,16 +18,24 @@ library(bayesplot)
 library(shinystan)
 ```
 
-\
+
 This examples comes from the week 6 homework for the stats rethinking courese. I have modified it to work off stan. Rethinking is only called to get the data and then the package is removed. I want to try and bridge the gap from the Rethinking package toward real world tools.
 
 **1. Conduct a prior predictive simulation for the Reedfrog model. By this I mean to simulate the prior distribution of tank survival probabilities αj. Start by using this prior:**
 
-Display equation: $$
+$$
 \alpha_j \sim Normal(\bar{\alpha}, \sigma)\\
 \bar{\alpha} \sim Normal(0,1) \\
 \sigma \sim Exponential(1)
 $$
+
+```{=latex}
+\alpha_j \sim Normal(\bar{\alpha}, \sigma)\\
+\bar{\alpha} \sim Normal(0,1) \\
+\sigma \sim Exponential(1)
+```
+
+
 
 **Be sure to transform the αj values to the probability scale for plotting and summary. How does increasing the width of the prior on σ change the prior distribution of αj? You might try Exponential(10) and Exponential(0.1) for example.**
 
@@ -97,9 +105,10 @@ print_file <- function(file) {
 print_file("question_two_model.stan")
 ```
 
-
 ```{r, message = FALSE}
 m2 <- stan("question_two_model.stan", data=dat)
+
+
 print(m2, probs=c(0.25, 0.5, 0.75), pars=c("b", "sigma") , include=TRUE)
 plot(m2, pars=c("b", "sigma"))
 
