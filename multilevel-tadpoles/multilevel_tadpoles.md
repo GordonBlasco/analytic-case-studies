@@ -1,46 +1,9 @@
-    ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
-
-    ## v ggplot2 3.3.5     v purrr   0.3.4
-    ## v tibble  3.1.6     v dplyr   1.0.6
-    ## v tidyr   1.1.3     v stringr 1.4.0
-    ## v readr   1.4.0     v forcats 0.5.1
-
-    ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
-    ## x dplyr::filter() masks stats::filter()
-    ## x dplyr::lag()    masks stats::lag()
-
-    ## Loading required package: StanHeaders
-
-    ## rstan (Version 2.21.3, GitRev: 2e1f913d3ca3)
-
-    ## For execution on a local, multicore CPU with excess RAM we recommend calling
-    ## options(mc.cores = parallel::detectCores()).
-    ## To avoid recompilation of unchanged Stan programs, we recommend calling
-    ## rstan_options(auto_write = TRUE)
-
-    ## Do not specify '-march=native' in 'LOCAL_CPPFLAGS' or a Makevars file
-
-    ## 
-    ## Attaching package: 'rstan'
-
-    ## The following object is masked from 'package:tidyr':
-    ## 
-    ##     extract
-
-    ## This is bayesplot version 1.8.1
-
-    ## - Online documentation and vignettes at mc-stan.org/bayesplot
-
-    ## - bayesplot theme set to bayesplot::theme_default()
-
-    ##    * Does _not_ affect other ggplot2 plots
-
-    ##    * See ?bayesplot_theme_set for details on theme setting
-
-    ## Loading required package: shiny
-
-    ## 
-    ## This is shinystan version 2.5.0
+    library(dagitty)
+    library(tidyverse)
+    library(tidybayes)
+    library(rstan)
+    library(bayesplot)
+    library(shinystan)
 
 This examples comes from the week 6 homework for the stats rethinking
 courese. I have modified it to work off stan. Rethinking is only called
@@ -52,41 +15,44 @@ this I mean to simulate the prior distribution of tank survival
 probabilities αj. Start by using this prior:**
 
 $$
-\\alpha_j \\sim Normal(\\bar{\\alpha}, \\sigma)\\\\
+\\alpha\_j \\sim Normal(\\bar{\\alpha}, \\sigma)\\\\
 \\bar{\\alpha} \\sim Normal(0,1) \\\\
 \\sigma \\sim Exponential(1)
 $$
+
+another test
+$$\\begin{equation}
+  (X \\ci Y) | Z \\iff Pr(A \\cap B |C) = Pr(A|C)Pr(B|C)
+\\end{equation}$$
 
 **Be sure to transform the αj values to the probability scale for
 plotting and summary. How does increasing the width of the prior on σ
 change the prior distribution of αj? You might try Exponential(10) and
 Exponential(0.1) for example.**
 
-``` r
-n <- 1e4
+    n <- 1e4
 
-prior_test <- tibble(
-  sigma_0.1 = rexp(n, 0.1),
-  sigma_1.0 = rexp(n, 1.0),
-  a_bar = rnorm(n, 0, 1)
-) %>%
-  mutate(
-    # create prior distributions
-    prior_sig_0.1 = rnorm(n, a_bar, sigma_0.1),
-    prior_sig_1.0 = rnorm(n, a_bar, sigma_1.0),
-    
-    # convert both to inverse logits
-    prior_sig_0.1 = exp(prior_sig_0.1) / (1 + exp(prior_sig_0.1)),
-    prior_sig_1.0 = exp(prior_sig_1.0) / (1 + exp(prior_sig_1.0))
-  )
+    prior_test <- tibble(
+      sigma_0.1 = rexp(n, 0.1),
+      sigma_1.0 = rexp(n, 1.0),
+      a_bar = rnorm(n, 0, 1)
+    ) %>%
+      mutate(
+        # create prior distributions
+        prior_sig_0.1 = rnorm(n, a_bar, sigma_0.1),
+        prior_sig_1.0 = rnorm(n, a_bar, sigma_1.0),
+        
+        # convert both to inverse logits
+        prior_sig_0.1 = exp(prior_sig_0.1) / (1 + exp(prior_sig_0.1)),
+        prior_sig_1.0 = exp(prior_sig_1.0) / (1 + exp(prior_sig_1.0))
+      )
 
 
-ggplot(data = prior_test)+ 
-  geom_density(aes(x=prior_sig_0.1), color = "red")+
-  geom_density(aes(x=prior_sig_1.0), color = "blue")
-```
+    ggplot(data = prior_test)+ 
+      geom_density(aes(x=prior_sig_0.1), color = "red")+
+      geom_density(aes(x=prior_sig_1.0), color = "blue")
 
-![](multilevel_tadpoles_files/figure-markdown_github/unnamed-chunk-2-1.png)
+![](multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-2-1.png)
 
 The main point of this exercise is to see that flat priors on one scale
 are not flat on another.
@@ -98,41 +64,35 @@ including how size might modify the effect of predation. An easy
 approach is to estimate an effect for each combination of pred and size.
 Justify your model with a DAG of this experiment.**
 
-``` r
-tadpole_dag <- dagitty( "dag {
-                    P -> S <- G
-                    T -> S <- D
-                    }")
+    tadpole_dag <- dagitty( "dag {
+                        P -> S <- G
+                        T -> S <- D
+                        }")
 
-plot(tadpole_dag)
-```
+    plot(tadpole_dag)
 
     ## Plot coordinates for graph not supplied! Generating coordinates, see ?coordinates for how to set your own.
 
-![](multilevel_tadpoles_files/figure-markdown_github/unnamed-chunk-3-1.png)
+![](multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-3-1.png)
 
-``` r
-data(reedfrogs, package = "rethinking")
-d <- reedfrogs
+    data(reedfrogs, package = "rethinking")
+    d <- reedfrogs
 
 
-dat <- list(
-    S = d$surv,
-    D = d$density,
-    T = 1:nrow(d),
-    P = ifelse( d$pred=="no" , 1L , 2L ),
-    G = ifelse( d$size=="small" , 1L , 2L )
-)
-```
+    dat <- list(
+        S = d$surv,
+        D = d$density,
+        T = 1:nrow(d),
+        P = ifelse( d$pred=="no" , 1L , 2L ),
+        G = ifelse( d$size=="small" , 1L , 2L )
+    )
 
 now in stan:
 
-``` r
-print_file <- function(file) {
-  cat(paste(readLines(file), "\n", sep=""), sep="")
-}
-print_file("question_two_model.stan")
-```
+    print_file <- function(file) {
+      cat(paste(readLines(file), "\n", sep=""), sep="")
+    }
+    print_file("question_two_model.stan")
 
     ## data{
     ##     int D[48];
@@ -167,9 +127,7 @@ print_file("question_two_model.stan")
     ##     for ( i in 1:48 ) log_lik[i] = binomial_lpmf( S[i] | D[i] , p[i] );
     ## }
 
-``` r
-m2 <- stan("question_two_model.stan", data=dat)
-```
+    m2 <- stan("question_two_model.stan", data=dat)
 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 1).
@@ -192,9 +150,9 @@ m2 <- stan("question_two_model.stan", data=dat)
     ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 1: 
-    ## Chain 1:  Elapsed Time: 0.233 seconds (Warm-up)
-    ## Chain 1:                0.221 seconds (Sampling)
-    ## Chain 1:                0.454 seconds (Total)
+    ## Chain 1:  Elapsed Time: 0.241 seconds (Warm-up)
+    ## Chain 1:                0.24 seconds (Sampling)
+    ## Chain 1:                0.481 seconds (Total)
     ## Chain 1: 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 2).
@@ -217,9 +175,9 @@ m2 <- stan("question_two_model.stan", data=dat)
     ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 2: 
-    ## Chain 2:  Elapsed Time: 0.223 seconds (Warm-up)
-    ## Chain 2:                0.244 seconds (Sampling)
-    ## Chain 2:                0.467 seconds (Total)
+    ## Chain 2:  Elapsed Time: 0.249 seconds (Warm-up)
+    ## Chain 2:                0.229 seconds (Sampling)
+    ## Chain 2:                0.478 seconds (Total)
     ## Chain 2: 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 3).
@@ -242,9 +200,9 @@ m2 <- stan("question_two_model.stan", data=dat)
     ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 3: 
-    ## Chain 3:  Elapsed Time: 0.231 seconds (Warm-up)
-    ## Chain 3:                0.235 seconds (Sampling)
-    ## Chain 3:                0.466 seconds (Total)
+    ## Chain 3:  Elapsed Time: 0.236 seconds (Warm-up)
+    ## Chain 3:                0.238 seconds (Sampling)
+    ## Chain 3:                0.474 seconds (Total)
     ## Chain 3: 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 4).
@@ -267,36 +225,32 @@ m2 <- stan("question_two_model.stan", data=dat)
     ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 4: 
-    ## Chain 4:  Elapsed Time: 0.228 seconds (Warm-up)
-    ## Chain 4:                0.24 seconds (Sampling)
-    ## Chain 4:                0.468 seconds (Total)
+    ## Chain 4:  Elapsed Time: 0.232 seconds (Warm-up)
+    ## Chain 4:                0.231 seconds (Sampling)
+    ## Chain 4:                0.463 seconds (Total)
     ## Chain 4:
 
-``` r
-print(m2, probs=c(0.25, 0.5, 0.75), pars=c("b", "sigma") , include=TRUE)
-```
+    print(m2, probs=c(0.25, 0.5, 0.75), pars=c("b", "sigma") , include=TRUE)
 
     ## Inference for Stan model: question_two_model.
     ## 4 chains, each with iter=2000; warmup=1000; thin=1; 
     ## post-warmup draws per chain=1000, total post-warmup draws=4000.
     ## 
     ##         mean se_mean   sd   25%   50%   75% n_eff Rhat
-    ## b[1,1]  2.36    0.00 0.31  2.16  2.35  2.57  4104    1
-    ## b[1,2]  2.49    0.00 0.31  2.28  2.48  2.69  4064    1
-    ## b[2,1]  0.44    0.01 0.27  0.27  0.44  0.61  2509    1
-    ## b[2,2] -0.43    0.00 0.25 -0.60 -0.43 -0.26  2736    1
-    ## sigma   0.74    0.00 0.14  0.63  0.73  0.83  1126    1
+    ## b[1,1]  2.36    0.00 0.31  2.16  2.36  2.56  3755    1
+    ## b[1,2]  2.50    0.00 0.31  2.29  2.50  2.70  3837    1
+    ## b[2,1]  0.45    0.01 0.25  0.28  0.45  0.61  2502    1
+    ## b[2,2] -0.43    0.00 0.25 -0.60 -0.43 -0.27  2546    1
+    ## sigma   0.74    0.00 0.14  0.64  0.73  0.83  1331    1
     ## 
-    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:05:28 2022.
+    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:15:20 2022.
     ## For each parameter, n_eff is a crude measure of effective sample size,
     ## and Rhat is the potential scale reduction factor on split chains (at 
     ## convergence, Rhat=1).
 
-``` r
-plot(m2, pars=c("b", "sigma"))
-```
+    plot(m2, pars=c("b", "sigma"))
 
-![](multilevel_tadpoles_files/figure-markdown_github/unnamed-chunk-7-1.png)
+![](multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-7-1.png)
 
 **3. Now estimate the causal effect of density on survival. Consider
 whether pred modifies the effect of density. There are several good ways
@@ -306,14 +260,12 @@ convert it to an ordered category (with three levels). Compare the σ
 (tank standard deviation) posterior distribution to σ from your model in
 Problem 2. How are they different? Why?**
 
-``` r
-log_dens <- log(d$density)
-stand_log_dens <- (log_dens - mean(log_dens)) / sd(log_dens)
-dat$Do <- stand_log_dens
+    log_dens <- log(d$density)
+    stand_log_dens <- (log_dens - mean(log_dens)) / sd(log_dens)
+    dat$Do <- stand_log_dens
 
 
-m3 <- stan("question_three_model.stan", data=dat)
-```
+    m3 <- stan("question_three_model.stan", data=dat)
 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 1).
@@ -336,9 +288,9 @@ m3 <- stan("question_three_model.stan", data=dat)
     ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 1: 
-    ## Chain 1:  Elapsed Time: 0.265 seconds (Warm-up)
-    ## Chain 1:                0.265 seconds (Sampling)
-    ## Chain 1:                0.53 seconds (Total)
+    ## Chain 1:  Elapsed Time: 0.296 seconds (Warm-up)
+    ## Chain 1:                0.29 seconds (Sampling)
+    ## Chain 1:                0.586 seconds (Total)
     ## Chain 1: 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 2).
@@ -361,9 +313,9 @@ m3 <- stan("question_three_model.stan", data=dat)
     ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 2: 
-    ## Chain 2:  Elapsed Time: 0.278 seconds (Warm-up)
-    ## Chain 2:                0.245 seconds (Sampling)
-    ## Chain 2:                0.523 seconds (Total)
+    ## Chain 2:  Elapsed Time: 0.296 seconds (Warm-up)
+    ## Chain 2:                0.286 seconds (Sampling)
+    ## Chain 2:                0.582 seconds (Total)
     ## Chain 2: 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 3).
@@ -386,9 +338,9 @@ m3 <- stan("question_three_model.stan", data=dat)
     ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 3: 
-    ## Chain 3:  Elapsed Time: 0.274 seconds (Warm-up)
-    ## Chain 3:                0.266 seconds (Sampling)
-    ## Chain 3:                0.54 seconds (Total)
+    ## Chain 3:  Elapsed Time: 0.289 seconds (Warm-up)
+    ## Chain 3:                0.275 seconds (Sampling)
+    ## Chain 3:                0.564 seconds (Total)
     ## Chain 3: 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 4).
@@ -411,39 +363,35 @@ m3 <- stan("question_three_model.stan", data=dat)
     ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 4: 
-    ## Chain 4:  Elapsed Time: 0.269 seconds (Warm-up)
-    ## Chain 4:                0.266 seconds (Sampling)
-    ## Chain 4:                0.535 seconds (Total)
+    ## Chain 4:  Elapsed Time: 0.295 seconds (Warm-up)
+    ## Chain 4:                0.29 seconds (Sampling)
+    ## Chain 4:                0.585 seconds (Total)
     ## Chain 4:
 
-``` r
-print(m3, probs=c(0.25, 0.5, 0.75), pars=c("b", "bD", "sigma") , include=TRUE)
-```
+    print(m3, probs=c(0.25, 0.5, 0.75), pars=c("b", "bD", "sigma") , include=TRUE)
 
     ## Inference for Stan model: question_three_model.
     ## 4 chains, each with iter=2000; warmup=1000; thin=1; 
     ## post-warmup draws per chain=1000, total post-warmup draws=4000.
     ## 
     ##         mean se_mean   sd   25%   50%   75% n_eff Rhat
-    ## b[1,1]  2.34       0 0.29  2.15  2.34  2.54  3509    1
-    ## b[1,2]  2.48       0 0.29  2.27  2.48  2.67  3729    1
-    ## b[2,1]  0.54       0 0.24  0.38  0.54  0.69  2728    1
-    ## b[2,2] -0.36       0 0.23 -0.50 -0.36 -0.21  2982    1
-    ## bD[1]   0.14       0 0.21  0.00  0.14  0.28  4566    1
-    ## bD[2]  -0.47       0 0.18 -0.59 -0.47 -0.36  2949    1
-    ## sigma   0.64       0 0.14  0.55  0.63  0.73  1141    1
+    ## b[1,1]  2.35       0 0.28  2.16  2.34  2.53  4517    1
+    ## b[1,2]  2.48       0 0.30  2.27  2.48  2.67  4284    1
+    ## b[2,1]  0.54       0 0.23  0.38  0.54  0.69  2929    1
+    ## b[2,2] -0.36       0 0.23 -0.51 -0.36 -0.21  3183    1
+    ## bD[1]   0.14       0 0.22  0.00  0.15  0.28  4891    1
+    ## bD[2]  -0.47       0 0.17 -0.58 -0.47 -0.35  3418    1
+    ## sigma   0.64       0 0.14  0.54  0.63  0.72   870    1
     ## 
-    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:05:51 2022.
+    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:15:43 2022.
     ## For each parameter, n_eff is a crude measure of effective sample size,
     ## and Rhat is the potential scale reduction factor on split chains (at 
     ## convergence, Rhat=1).
 
-``` r
-plot(m3, pars=c("b", "bD", "sigma"))
-```
+    plot(m3, pars=c("b", "bD", "sigma"))
 
     ## ci_level: 0.8 (80% intervals)
 
     ## outer_level: 0.95 (95% intervals)
 
-![](multilevel_tadpoles_files/figure-markdown_github/unnamed-chunk-8-1.png)
+![](multilevel_tadpoles_files/figure-markdown_strict/unnamed-chunk-8-1.png)

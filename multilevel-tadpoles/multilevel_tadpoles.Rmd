@@ -2,16 +2,14 @@
 title: "Multilevel tadpoles"
 author: "Gordon Blasco"
 date: "2/20/2022"
-output:
-  md_document:
-    variant: markdown_github
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, messages=FALSE, warning=FALSE, echo=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE}
 library(dagitty)
 library(tidyverse)
 library(tidybayes)
@@ -31,12 +29,10 @@ $$
 \sigma \sim Exponential(1)
 $$
 
-```{=latex}
-\alpha_j \sim Normal(\bar{\alpha}, \sigma)\\
-\bar{\alpha} \sim Normal(0,1) \\
-\sigma \sim Exponential(1)
-```
-
+another test
+$$\begin{equation}
+  (X \ci Y) | Z \iff Pr(A \cap B |C) = Pr(A|C)Pr(B|C)
+\end{equation}$$
 
 
 **Be sure to transform the αj values to the probability scale for plotting and summary. How does increasing the width of the prior on σ change the prior distribution of αj? You might try Exponential(10) and Exponential(0.1) for example.**
