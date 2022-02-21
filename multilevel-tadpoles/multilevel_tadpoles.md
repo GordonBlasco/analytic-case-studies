@@ -1,6 +1,3 @@
-    library(dagitty)
-    library(tidyverse)
-
     ## -- Attaching packages --------------------------------------- tidyverse 1.3.1 --
 
     ## v ggplot2 3.3.5     v purrr   0.3.4
@@ -11,9 +8,6 @@
     ## -- Conflicts ------------------------------------------ tidyverse_conflicts() --
     ## x dplyr::filter() masks stats::filter()
     ## x dplyr::lag()    masks stats::lag()
-
-    library(tidybayes)
-    library(rstan)
 
     ## Loading required package: StanHeaders
 
@@ -33,8 +27,6 @@
     ## 
     ##     extract
 
-    library(bayesplot)
-
     ## This is bayesplot version 1.8.1
 
     ## - Online documentation and vignettes at mc-stan.org/bayesplot
@@ -44,8 +36,6 @@
     ##    * Does _not_ affect other ggplot2 plots
 
     ##    * See ?bayesplot_theme_set for details on theme setting
-
-    library(shinystan)
 
     ## Loading required package: shiny
 
@@ -62,6 +52,7 @@ bridge the gap from the Rethinking package toward real world tools.
 this I mean to simulate the prior distribution of tank survival
 probabilities αj. Start by using this prior:**
 
+Display equation:
 $$
 \\alpha\_j \\sim Normal(\\bar{\\alpha}, \\sigma)\\\\
 \\bar{\\alpha} \\sim Normal(0,1) \\\\
@@ -193,9 +184,9 @@ now in stan:
     ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 1: 
-    ## Chain 1:  Elapsed Time: 0.24 seconds (Warm-up)
-    ## Chain 1:                0.19 seconds (Sampling)
-    ## Chain 1:                0.43 seconds (Total)
+    ## Chain 1:  Elapsed Time: 0.236 seconds (Warm-up)
+    ## Chain 1:                0.249 seconds (Sampling)
+    ## Chain 1:                0.485 seconds (Total)
     ## Chain 1: 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 2).
@@ -218,9 +209,9 @@ now in stan:
     ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 2: 
-    ## Chain 2:  Elapsed Time: 0.233 seconds (Warm-up)
-    ## Chain 2:                0.235 seconds (Sampling)
-    ## Chain 2:                0.468 seconds (Total)
+    ## Chain 2:  Elapsed Time: 0.24 seconds (Warm-up)
+    ## Chain 2:                0.237 seconds (Sampling)
+    ## Chain 2:                0.477 seconds (Total)
     ## Chain 2: 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 3).
@@ -243,9 +234,9 @@ now in stan:
     ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 3: 
-    ## Chain 3:  Elapsed Time: 0.24 seconds (Warm-up)
-    ## Chain 3:                0.239 seconds (Sampling)
-    ## Chain 3:                0.479 seconds (Total)
+    ## Chain 3:  Elapsed Time: 0.239 seconds (Warm-up)
+    ## Chain 3:                0.234 seconds (Sampling)
+    ## Chain 3:                0.473 seconds (Total)
     ## Chain 3: 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 4).
@@ -268,9 +259,9 @@ now in stan:
     ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 4: 
-    ## Chain 4:  Elapsed Time: 0.236 seconds (Warm-up)
-    ## Chain 4:                0.234 seconds (Sampling)
-    ## Chain 4:                0.47 seconds (Total)
+    ## Chain 4:  Elapsed Time: 0.232 seconds (Warm-up)
+    ## Chain 4:                0.241 seconds (Sampling)
+    ## Chain 4:                0.473 seconds (Total)
     ## Chain 4:
 
     print(m2, probs=c(0.25, 0.5, 0.75), pars=c("b", "sigma") , include=TRUE)
@@ -280,13 +271,13 @@ now in stan:
     ## post-warmup draws per chain=1000, total post-warmup draws=4000.
     ## 
     ##         mean se_mean   sd   25%   50%   75% n_eff Rhat
-    ## b[1,1]  2.37    0.00 0.30  2.17  2.37  2.57  3681    1
-    ## b[1,2]  2.51    0.00 0.31  2.31  2.51  2.72  3963    1
-    ## b[2,1]  0.44    0.01 0.25  0.27  0.44  0.61  2425    1
-    ## b[2,2] -0.41    0.01 0.26 -0.59 -0.42 -0.24  2064    1
-    ## sigma   0.73    0.00 0.15  0.63  0.72  0.82  1050    1
+    ## b[1,1]  2.37    0.00 0.30  2.16  2.37  2.56  3928    1
+    ## b[1,2]  2.50    0.01 0.32  2.29  2.50  2.72  3946    1
+    ## b[2,1]  0.45    0.00 0.25  0.28  0.44  0.61  2708    1
+    ## b[2,2] -0.43    0.00 0.25 -0.60 -0.43 -0.26  2528    1
+    ## sigma   0.74    0.00 0.15  0.64  0.73  0.83  1442    1
     ## 
-    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 18:48:51 2022.
+    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 18:52:48 2022.
     ## For each parameter, n_eff is a crude measure of effective sample size,
     ## and Rhat is the potential scale reduction factor on split chains (at 
     ## convergence, Rhat=1).
@@ -331,9 +322,9 @@ Problem 2. How are they different? Why?**
     ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 1: 
-    ## Chain 1:  Elapsed Time: 0.287 seconds (Warm-up)
-    ## Chain 1:                0.281 seconds (Sampling)
-    ## Chain 1:                0.568 seconds (Total)
+    ## Chain 1:  Elapsed Time: 0.262 seconds (Warm-up)
+    ## Chain 1:                0.256 seconds (Sampling)
+    ## Chain 1:                0.518 seconds (Total)
     ## Chain 1: 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 2).
@@ -356,9 +347,9 @@ Problem 2. How are they different? Why?**
     ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 2: 
-    ## Chain 2:  Elapsed Time: 0.283 seconds (Warm-up)
-    ## Chain 2:                0.288 seconds (Sampling)
-    ## Chain 2:                0.571 seconds (Total)
+    ## Chain 2:  Elapsed Time: 0.275 seconds (Warm-up)
+    ## Chain 2:                0.274 seconds (Sampling)
+    ## Chain 2:                0.549 seconds (Total)
     ## Chain 2: 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 3).
@@ -381,9 +372,9 @@ Problem 2. How are they different? Why?**
     ## Chain 3: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 3: 
-    ## Chain 3:  Elapsed Time: 0.282 seconds (Warm-up)
-    ## Chain 3:                0.284 seconds (Sampling)
-    ## Chain 3:                0.566 seconds (Total)
+    ## Chain 3:  Elapsed Time: 0.281 seconds (Warm-up)
+    ## Chain 3:                0.275 seconds (Sampling)
+    ## Chain 3:                0.556 seconds (Total)
     ## Chain 3: 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 4).
@@ -406,9 +397,9 @@ Problem 2. How are they different? Why?**
     ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 4: 
-    ## Chain 4:  Elapsed Time: 0.26 seconds (Warm-up)
-    ## Chain 4:                0.264 seconds (Sampling)
-    ## Chain 4:                0.524 seconds (Total)
+    ## Chain 4:  Elapsed Time: 0.273 seconds (Warm-up)
+    ## Chain 4:                0.272 seconds (Sampling)
+    ## Chain 4:                0.545 seconds (Total)
     ## Chain 4:
 
     print(m3, probs=c(0.25, 0.5, 0.75), pars=c("b", "bD", "sigma") , include=TRUE)
@@ -418,15 +409,15 @@ Problem 2. How are they different? Why?**
     ## post-warmup draws per chain=1000, total post-warmup draws=4000.
     ## 
     ##         mean se_mean   sd   25%   50%   75% n_eff Rhat
-    ## b[1,1]  2.35       0 0.28  2.15  2.34  2.54  4963    1
-    ## b[1,2]  2.48       0 0.30  2.27  2.47  2.69  4459    1
-    ## b[2,1]  0.53       0 0.24  0.37  0.53  0.68  2820    1
-    ## b[2,2] -0.35       0 0.23 -0.50 -0.36 -0.20  3014    1
-    ## bD[1]   0.14       0 0.21  0.00  0.15  0.29  5521    1
-    ## bD[2]  -0.47       0 0.17 -0.58 -0.47 -0.35  3897    1
-    ## sigma   0.65       0 0.14  0.55  0.64  0.73  1126    1
+    ## b[1,1]  2.35       0 0.28  2.16  2.34  2.54  4187    1
+    ## b[1,2]  2.48       0 0.30  2.28  2.48  2.68  4252    1
+    ## b[2,1]  0.53       0 0.23  0.37  0.53  0.68  2997    1
+    ## b[2,2] -0.36       0 0.23 -0.52 -0.36 -0.21  3140    1
+    ## bD[1]   0.14       0 0.21  0.00  0.14  0.28  4848    1
+    ## bD[2]  -0.47       0 0.17 -0.58 -0.47 -0.36  3221    1
+    ## sigma   0.64       0 0.13  0.55  0.63  0.73  1125    1
     ## 
-    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 18:49:14 2022.
+    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 18:53:11 2022.
     ## For each parameter, n_eff is a crude measure of effective sample size,
     ## and Rhat is the potential scale reduction factor on split chains (at 
     ## convergence, Rhat=1).

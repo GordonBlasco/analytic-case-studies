@@ -9,7 +9,7 @@ output: md_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, messages=FALSE, warning=FALSE}
+```{r, messages=FALSE, warning=FALSE, echo=FALSE}
 library(dagitty)
 library(tidyverse)
 library(tidybayes)
@@ -23,7 +23,7 @@ This examples comes from the week 6 homework for the stats rethinking courese. I
 
 **1. Conduct a prior predictive simulation for the Reedfrog model. By this I mean to simulate the prior distribution of tank survival probabilities αj. Start by using this prior:**
 
-$$
+Display equation: $$
 \alpha_j \sim Normal(\bar{\alpha}, \sigma)\\
 \bar{\alpha} \sim Normal(0,1) \\
 \sigma \sim Exponential(1)
