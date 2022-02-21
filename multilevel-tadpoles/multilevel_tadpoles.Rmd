@@ -6,7 +6,7 @@ output: md_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE, comment = NA, fig.align="center")
+knitr::opts_chunk$set(echo = TRUE, comment = NA, out.extra = 'style="display:block; margin:auto;"')
 ```
 
 ```{r results='hide', message=FALSE, warning=FALSE}
@@ -123,7 +123,7 @@ dat$Do <- stand_log_dens
 ```
 
 
-```{r echo=FALSE}
+```{r results='hide', message=FALSE, warning=FALSE}
 m3 <- stan("question_three_model.stan", data=dat)
 ```
 
