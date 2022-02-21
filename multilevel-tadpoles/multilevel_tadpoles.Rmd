@@ -107,7 +107,7 @@ print_file <- function(file) {
 print_file("question_two_model.stan")
 ```
 
-```{r, message = FALSE}
+```{r, message=FALSE, warning=FALSE}
 m2 <- stan("question_two_model.stan", data=dat)
 ```
 

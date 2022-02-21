@@ -192,9 +192,9 @@ m2 <- stan("question_two_model.stan", data=dat)
     ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 1: 
-    ## Chain 1:  Elapsed Time: 0.235 seconds (Warm-up)
-    ## Chain 1:                0.238 seconds (Sampling)
-    ## Chain 1:                0.473 seconds (Total)
+    ## Chain 1:  Elapsed Time: 0.233 seconds (Warm-up)
+    ## Chain 1:                0.221 seconds (Sampling)
+    ## Chain 1:                0.454 seconds (Total)
     ## Chain 1: 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 2).
@@ -217,9 +217,9 @@ m2 <- stan("question_two_model.stan", data=dat)
     ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 2: 
-    ## Chain 2:  Elapsed Time: 0.232 seconds (Warm-up)
-    ## Chain 2:                0.24 seconds (Sampling)
-    ## Chain 2:                0.472 seconds (Total)
+    ## Chain 2:  Elapsed Time: 0.223 seconds (Warm-up)
+    ## Chain 2:                0.244 seconds (Sampling)
+    ## Chain 2:                0.467 seconds (Total)
     ## Chain 2: 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 3).
@@ -243,8 +243,8 @@ m2 <- stan("question_two_model.stan", data=dat)
     ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 3: 
     ## Chain 3:  Elapsed Time: 0.231 seconds (Warm-up)
-    ## Chain 3:                0.233 seconds (Sampling)
-    ## Chain 3:                0.464 seconds (Total)
+    ## Chain 3:                0.235 seconds (Sampling)
+    ## Chain 3:                0.466 seconds (Total)
     ## Chain 3: 
     ## 
     ## SAMPLING FOR MODEL 'question_two_model' NOW (CHAIN 4).
@@ -267,9 +267,9 @@ m2 <- stan("question_two_model.stan", data=dat)
     ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 4: 
-    ## Chain 4:  Elapsed Time: 0.231 seconds (Warm-up)
-    ## Chain 4:                0.216 seconds (Sampling)
-    ## Chain 4:                0.447 seconds (Total)
+    ## Chain 4:  Elapsed Time: 0.228 seconds (Warm-up)
+    ## Chain 4:                0.24 seconds (Sampling)
+    ## Chain 4:                0.468 seconds (Total)
     ## Chain 4:
 
 ``` r
@@ -281,13 +281,13 @@ print(m2, probs=c(0.25, 0.5, 0.75), pars=c("b", "sigma") , include=TRUE)
     ## post-warmup draws per chain=1000, total post-warmup draws=4000.
     ## 
     ##         mean se_mean   sd   25%   50%   75% n_eff Rhat
-    ## b[1,1]  2.36    0.01 0.30  2.16  2.36  2.56  3407    1
-    ## b[1,2]  2.50    0.01 0.32  2.28  2.49  2.71  4043    1
-    ## b[2,1]  0.45    0.01 0.26  0.28  0.45  0.63  2446    1
-    ## b[2,2] -0.42    0.01 0.26 -0.60 -0.42 -0.25  2492    1
-    ## sigma   0.74    0.00 0.15  0.63  0.72  0.83  1127    1
+    ## b[1,1]  2.36    0.00 0.31  2.16  2.35  2.57  4104    1
+    ## b[1,2]  2.49    0.00 0.31  2.28  2.48  2.69  4064    1
+    ## b[2,1]  0.44    0.01 0.27  0.27  0.44  0.61  2509    1
+    ## b[2,2] -0.43    0.00 0.25 -0.60 -0.43 -0.26  2736    1
+    ## sigma   0.74    0.00 0.14  0.63  0.73  0.83  1126    1
     ## 
-    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 19:41:10 2022.
+    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:05:28 2022.
     ## For each parameter, n_eff is a crude measure of effective sample size,
     ## and Rhat is the potential scale reduction factor on split chains (at 
     ## convergence, Rhat=1).
@@ -336,9 +336,9 @@ m3 <- stan("question_three_model.stan", data=dat)
     ## Chain 1: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 1: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 1: 
-    ## Chain 1:  Elapsed Time: 0.253 seconds (Warm-up)
-    ## Chain 1:                0.27 seconds (Sampling)
-    ## Chain 1:                0.523 seconds (Total)
+    ## Chain 1:  Elapsed Time: 0.265 seconds (Warm-up)
+    ## Chain 1:                0.265 seconds (Sampling)
+    ## Chain 1:                0.53 seconds (Total)
     ## Chain 1: 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 2).
@@ -361,9 +361,9 @@ m3 <- stan("question_three_model.stan", data=dat)
     ## Chain 2: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 2: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 2: 
-    ## Chain 2:  Elapsed Time: 0.27 seconds (Warm-up)
-    ## Chain 2:                0.263 seconds (Sampling)
-    ## Chain 2:                0.533 seconds (Total)
+    ## Chain 2:  Elapsed Time: 0.278 seconds (Warm-up)
+    ## Chain 2:                0.245 seconds (Sampling)
+    ## Chain 2:                0.523 seconds (Total)
     ## Chain 2: 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 3).
@@ -387,8 +387,8 @@ m3 <- stan("question_three_model.stan", data=dat)
     ## Chain 3: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 3: 
     ## Chain 3:  Elapsed Time: 0.274 seconds (Warm-up)
-    ## Chain 3:                0.239 seconds (Sampling)
-    ## Chain 3:                0.513 seconds (Total)
+    ## Chain 3:                0.266 seconds (Sampling)
+    ## Chain 3:                0.54 seconds (Total)
     ## Chain 3: 
     ## 
     ## SAMPLING FOR MODEL 'question_three_model' NOW (CHAIN 4).
@@ -411,9 +411,9 @@ m3 <- stan("question_three_model.stan", data=dat)
     ## Chain 4: Iteration: 1800 / 2000 [ 90%]  (Sampling)
     ## Chain 4: Iteration: 2000 / 2000 [100%]  (Sampling)
     ## Chain 4: 
-    ## Chain 4:  Elapsed Time: 0.27 seconds (Warm-up)
-    ## Chain 4:                0.261 seconds (Sampling)
-    ## Chain 4:                0.531 seconds (Total)
+    ## Chain 4:  Elapsed Time: 0.269 seconds (Warm-up)
+    ## Chain 4:                0.266 seconds (Sampling)
+    ## Chain 4:                0.535 seconds (Total)
     ## Chain 4:
 
 ``` r
@@ -425,15 +425,15 @@ print(m3, probs=c(0.25, 0.5, 0.75), pars=c("b", "bD", "sigma") , include=TRUE)
     ## post-warmup draws per chain=1000, total post-warmup draws=4000.
     ## 
     ##         mean se_mean   sd   25%   50%   75% n_eff Rhat
-    ## b[1,1]  2.34       0 0.28  2.15  2.34  2.53  3701    1
-    ## b[1,2]  2.48       0 0.30  2.27  2.48  2.67  4148    1
-    ## b[2,1]  0.53       0 0.23  0.39  0.54  0.68  2831    1
-    ## b[2,2] -0.35       0 0.23 -0.51 -0.36 -0.20  2696    1
-    ## bD[1]   0.15       0 0.21  0.01  0.15  0.29  4459    1
-    ## bD[2]  -0.47       0 0.18 -0.58 -0.47 -0.35  3156    1
-    ## sigma   0.64       0 0.14  0.54  0.63  0.72   914    1
+    ## b[1,1]  2.34       0 0.29  2.15  2.34  2.54  3509    1
+    ## b[1,2]  2.48       0 0.29  2.27  2.48  2.67  3729    1
+    ## b[2,1]  0.54       0 0.24  0.38  0.54  0.69  2728    1
+    ## b[2,2] -0.36       0 0.23 -0.50 -0.36 -0.21  2982    1
+    ## bD[1]   0.14       0 0.21  0.00  0.14  0.28  4566    1
+    ## bD[2]  -0.47       0 0.18 -0.59 -0.47 -0.36  2949    1
+    ## sigma   0.64       0 0.14  0.55  0.63  0.73  1141    1
     ## 
-    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 19:41:34 2022.
+    ## Samples were drawn using NUTS(diag_e) at Sun Feb 20 20:05:51 2022.
     ## For each parameter, n_eff is a crude measure of effective sample size,
     ## and Rhat is the potential scale reduction factor on split chains (at 
     ## convergence, Rhat=1).
