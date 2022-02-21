@@ -2,7 +2,9 @@
 title: "Multilevel tadpoles"
 author: "Gordon Blasco"
 date: "2/20/2022"
-output: md_document
+output:
+  md_document:
+    variant: markdown_github
 ---
 
 ```{r setup, include=FALSE}
@@ -107,8 +109,10 @@ print_file("question_two_model.stan")
 
 ```{r, message = FALSE}
 m2 <- stan("question_two_model.stan", data=dat)
+```
 
 
+```{r, message = FALSE}
 print(m2, probs=c(0.25, 0.5, 0.75), pars=c("b", "sigma") , include=TRUE)
 plot(m2, pars=c("b", "sigma"))
 
