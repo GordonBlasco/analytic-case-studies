@@ -1,0 +1,109 @@
+---
+title: "Bangladesh fertility"
+author: "Gordon Blasco"
+date: "2/26/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(dagitty)
+library(tidyverse)
+library(tidybayes)
+library(rstan)
+library(bayesplot)
+library(shinystan)
+```
+1. The data in data(bangladesh) are 1934 women from the 1989 Bangladesh Fertility Survey. For each woman, we know which district she lived in, her number of living.children, her age.centered, whether she lived in an urban center, and finally whether or not she used contraception (use.contraception).
+
+In this first problem, I only want you to investigate the proportion of women using contraception in each district. Use partial pooling (varying effects). Then compare the varying effect estimates to the raw empirical proportion in each district. Explain the differences between the estimates and the data.
+
+Note that district number 54 is absent in the data. This causes some problems in indexing the parameters. The simplest fix is just to tell ulam manually how long the vector should be, like this: vector[61]:a ~ normal(abar,sigma). Pay special attention to district number 54’s estimate.
+```{r}
+data(bangladesh, package = "rethinking")
+d <- bangladesh
+```
+
+```{r}
+district <- d %>% 
+  group_by(district) %>% 
+  summarise(total = n(),
+            use.contr = sum(use.contraception),
+            perc.contra =  use.contr/total) 
+
+
+district %>% 
+  ggplot(data = ., aes(x = district, y = perc.contra))+
+  geom_col()
+```
+
+```{r}
+dat <- list(
+    C = d$use.contraception,
+    A = d$age.centered,
+    K = d$living.children,
+    U = d$urban,
+    D = as.integer(d$district),
+    J = nrow(d)
+)
+```
+
+
+$$
+C \sim Bernoulli(p)\\
+logit(p_i) = \alpha_D[i] \\
+\alpha_j \sim Normal(\bar{\alpha}, sigma)\\
+\bar{\alpha} \sim Normal(0, 1)\\
+sigma \sim Exponential(1)
+$$
+
+```{r echo=FALSE}
+print_file <- function(file) {
+  cat(paste(readLines(file), "\n", sep=""), sep="")
+}
+print_file("model_1.stan")
+```
+
+```{r}
+m1 <- stan("model_1.stan", data=dat)
+#launch_shinystan(as.shinystan(m1))
+```
+
+
+```{r}
+x <- m1 %>%
+ recover_types(dat) 
+
+gather <- gather_draws(x, a[i])
+
+spread_draws(x, a[i]) %>% 
+  ggplot(aes(x = i, y =  (exp(a)/(1+exp(a)))))+
+  stat_pointinterval()+
+  geom_point(data = district, aes(x = district, y = perc.contra), col = "red")+
+  geom_text(data = district, aes(label=total, x = district,  .8 ), vjust = 0, check_overlap = TRUE)+
+  geom_hline(yintercept = sum(d$use.contraception)/nrow(d))
+```
+
+```{r warning=FALSE}
+
+bang_dag <- dagitty("dag {
+                    A -> C <- D
+                    K -> C <- U
+                    A -> K
+                    D -> U -> K
+                    }")
+
+plot(bang_dag)
+```
+
+
+
+```{r}
+
+
+
+```
+
