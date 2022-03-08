@@ -2,14 +2,14 @@
 title: "Bangladesh fertility"
 author: "Gordon Blasco"
 date: "2/26/2022"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 library(dagitty)
 library(tidyverse)
 library(tidybayes)
@@ -67,9 +67,16 @@ print_file <- function(file) {
 print_file("model_1.stan")
 ```
 
-```{r}
+```{r results='hide', message=FALSE, warning=FALSE}
 m1 <- stan("model_1.stan", data=dat)
-#launch_shinystan(as.shinystan(m1))
+```
+
+here is what the code looks like in stan:
+```{r echo=FALSE}
+print_file <- function(file) {
+  cat(paste(readLines(file), "\n", sep=""), sep="")
+}
+print_file("model_1.stan")
 ```
 
 
@@ -102,8 +109,53 @@ plot(bang_dag)
 
 
 ```{r}
-
+dagitty::adjustmentSets(bang_dag, 
+                        exposure = "U",
+                        outcome = "C")
 
 
 ```
 
+```{r results='hide', message=FALSE, warning=FALSE}
+m2 <- stan("model_2.stan", data=dat)
+```
+
+here is what the code looks like in stan:
+```{r echo=FALSE}
+print_file <- function(file) {
+  cat(paste(readLines(file), "\n", sep=""), sep="")
+}
+print_file("model_2.stan")
+```
+
+```{r}
+x <- m2 %>%
+ recover_types(dat) 
+
+spread_draws(x, bU) %>% 
+  ggplot(aes(x = bU))+
+  geom_density()
+```
+
+```{r results='hide', message=FALSE, warning=FALSE}
+dat$Kprior <- rep(2, 3)
+
+m3 <- stan("model_3.stan", data=dat)
+```
+
+here is what the code looks like in stan:
+```{r echo=FALSE}
+print_file <- function(file) {
+  cat(paste(readLines(file), "\n", sep=""), sep="")
+}
+print_file("model_3.stan")
+```
+
+```{r}
+x <- m3 %>%
+ recover_types(dat) 
+
+spread_draws(x, bU) %>% 
+  ggplot(aes(x = bU))+
+  geom_density()
+```
