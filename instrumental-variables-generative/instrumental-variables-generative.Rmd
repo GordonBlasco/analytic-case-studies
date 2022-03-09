@@ -2,7 +2,7 @@
 title: "instrumental models generative"
 author: "Gordon Blasco"
 date: "3/7/2022"
-output: html_document
+output: md_document
 ---
 
 ```{r setup, include=FALSE}
@@ -11,15 +11,222 @@ knitr::opts_chunk$set(echo = TRUE)
 
 
 ```{r}
-
+library(tidyverse)
 library(dagitty)
-
-
+library(tidybayes)
+library(rstan)
+library(bayesplot)
+library(shinystan)
 ```
+
+
+This material is mostly taken from Statistical rethinking chapter X.
+
+How about a statistical puzzle? Consider the DAG below. we are interested in the causal effect of A on B. Seems simple enough but imagine there is also an Unobserved variable U that influences both A and B. We cannot include U in our model as it is unmeasured. But we know it is there and we need try and tease out the effect of A and not have our estimates get muddled by U?
+```{r warning=FALSE}
+
+instrument_dag <- dagitty("dag {
+                    I -> A -> B <- U -> A
+                    U [unobserved]
+                    
+                    }")
+
+plot(instrument_dag)
+```
+
+First let's generate data from this system. This will let us define the effect of the variables on each other and generate a dataset. We will then try a few modeling strategies on that data to try and extract the correct effect of A on B.
 
 ```{r}
+# I want to model standardized effects
+standardize <- function(vector) {
+  x <- (vector - mean(vector))/ sd(vector)
+}
 
-dagitty()
+# generate 500 observations
+set.seed(101)
+N <- 500
+U_sim <- rnorm( N )
+I_sim <- sample( 1:4 , size=N , replace=TRUE )
+A_sim <- rnorm( N , U_sim + I_sim )
+B_sim <- rnorm( N , U_sim + 1*A_sim )
+
+# df form for classical models
+dat_sim_df <- tibble(B = standardize(B_sim) ,
+                     A = standardize(A_sim) ,
+                     I = standardize(I_sim))
+
+# list form for the bayesian models
+dat_sim <- list(B = standardize(B_sim) ,
+                A = standardize(A_sim) ,
+                I = standardize(I_sim),
+                J = N)
+
+
 
 ```
 
+Note: I set the effect of A on B as 5 so that will be the slope that we will be on the look out for in our models.
+
+## Classic linear regression
+```{r}
+fit <- lm(B~A, dat_sim_df) %>% summary()
+(sd(B_sim) * fit[["coefficients"]][2,1])/ sd(A_sim)
+```
+Wow... no that is quite a bit of an over estimation! This model is clearly failing. So we have this I variable that 
+
+```{r}
+fit2 <- lm(B~A+I, dat_sim_df) %>% summary()
+(sd(B_sim) * fit2[["coefficients"]][2,1])/ sd(A_sim)
+```
+That made things worse! 
+ 
+Well that is all of our variables... U is not something we can put in our model. The causal salad approach of just throwing more variables at the problem until it sorts itself out is not working here. 
+
+
+How can we recover our coefficient of 5 from this data? Well lets look at some equations
+
+
+
+
+
+
+```{r results='hide', message=FALSE, warning=FALSE}
+m1 <- stan("stan_model_multivar.stan", data=dat_sim)
+```
+
+here is what the code looks like in stan:
+```{r echo=FALSE}
+print_file <- function(file) {
+  cat(paste(readLines(file), "\n", sep=""), sep="")
+}
+print_file("stan_model_multivar.stan")
+```
+
+
+```{r}
+x <- m1 %>%
+ recover_types(dat_sim) 
+
+y <- summary(m1)
+y[["summary"]]
+
+
+
+gather <- gather_draws(x, bAB) 
+
+sd(B_sim) * mean(gather$.value) / sd(A_sim)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+```{r}
+m14.6 <- rethinking::ulam(
+  alist(
+    c(B, A) ~ multi_normal(c(muB, muA) , Rho , Sigma),
+    muB <- aB + bAB * A,
+    muA <- aA + bIA * I,
+    c(aB, aA) ~ normal(0 , 0.2),
+    c(bAB, bIA) ~ normal(0 , 0.5),
+    Rho ~ lkj_corr(2),
+    Sigma ~ exponential(1)
+  ),
+  data = dat_sim ,
+  chains = 4 ,
+  cores = 4
+)
+rethinking::precis(m14.6 , depth = 3)
+rethinking::stancode(m14.6)
+
+sd(B_sim) *1.22
+```
+ 
+
+
+
+```{r}
+sd(B_sim) *1.22
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+First I want to prove to you that this works. All I do below is simulate a vector of random numbers then I simulate vector B by multiplying the means of A by and sampling from that. 
+
+I then fit a linear model B ~ A and extract the slope coefficient for A and get it back into non standard terms. We should extract the number 5. That will tell us that we can infact model interactions this way.
+```{r}
+set.seed(101)
+N <- 5000
+A_sim <- rnorm( N )
+B_sim <- rnorm( N , 5*A_sim )
+
+
+dat_sim_df <- tibble(B = standardize(B_sim) ,
+                     A = standardize(A_sim))
+
+
+fit <- lm(B~A, dat_sim_df) %>% summary()
+sd(B_sim) * fit[["coefficients"]][2,1]
+
+```
+Ta-Da!
+
+Great
